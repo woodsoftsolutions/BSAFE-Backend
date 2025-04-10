@@ -5,16 +5,17 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\{
     productosController,
-    ProductController,
+    ProductsController,
     CategoriesController,
     SuppliersController,
-    CustomerController,
-    EmployeeController,
+    CustomersController,
+    EmployeesController,
     WarehousesController,
-    OrderController,
-    InventoryMovementController,
-    DeliveryNoteController,
-    UnitsController
+    OrdersController,
+    InventoryMovementsController,
+    DeliveryNotesController,
+    UnitsController,
+    UserController
 };
 
 
@@ -28,7 +29,7 @@ Route::get('/productos/filtrar', function () {
     ]);
 });
 // Productos
-Route::apiResource('products', ProductController::class);
+Route::apiResource('products', ProductsController::class);
     
 // Categorías
 Route::apiResource('categories', CategoriesController::class);
@@ -40,28 +41,33 @@ Route::apiResource('units', UnitsController::class);
 Route::apiResource('suppliers', SuppliersController::class);
 
 // Clientes
-Route::apiResource('customers', CustomerController::class);
+Route::apiResource('customers', CustomersController::class);
 
 // Empleados
-Route::apiResource('employees', EmployeeController::class);
+Route::apiResource('employees', EmployeesController::class);
+
+// Usuarios
+Route::apiResource('users', UserController::class);
+
+Route::post('login', [UserController::class, 'login']);
 
 // Almacenes
 Route::apiResource('warehouses', WarehousesController::class);
 
 // Pedidos
-Route::apiResource('orders', OrderController::class);
-Route::post('orders/{order}/approve', [OrderController::class, 'approve']);
-Route::post('orders/{order}/process', [OrderController::class, 'process']);
+Route::apiResource('orders', OrdersController::class);
+Route::post('orders/{order}/approve', [OrdersController::class, 'approve']);
+Route::post('orders/{order}/process', [OrdersController::class, 'process']);
 
 // Movimientos de Inventario
-Route::apiResource('inventory-movements', InventoryMovementController::class)->only(['index', 'show']);
+Route::apiResource('inventory-movements', InventoryMovementsController::class)->only(['index', 'show']);
 
 // Notas de Entrega
-Route::apiResource('delivery-notes', DeliveryNoteController::class)->only(['index', 'show', 'store']);
+Route::apiResource('delivery-notes', DeliveryNotesController::class)->only(['index', 'show', 'store']);
 
 // Reportes
-Route::get('reports/inventory', [InventoryMovementController::class, 'inventoryReport']);
-Route::get('reports/stock-alerts', [ProductController::class, 'stockAlerts']);
+Route::get('reports/inventory', [InventoryMovementsController::class, 'inventoryReport']);
+Route::get('reports/stock-alerts', [ProductsController::class, 'stockAlerts']);
 
 // Ruta pública para autenticación
-Route::post('/login', [AuthController::class, 'login']);
+#Route::post('/login', [AuthController::class, 'login']);

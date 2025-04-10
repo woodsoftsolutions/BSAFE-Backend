@@ -24,17 +24,17 @@ class Orders extends Model
     // Relaciones
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Suppliers::class);
     }
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customers::class);
     }
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employees::class);
     }
 
     public function items()
@@ -44,12 +44,12 @@ class Orders extends Model
 
     public function deliveryNote()
     {
-        return $this->hasOne(DeliveryNote::class);
+        return $this->hasOne(DeliveryNotes::class);
     }
 
     public function inventoryMovements()
     {
-        return $this->hasMany(InventoryMovement::class);
+        return $this->hasMany(inventoryMovements::class);
     }
 
     // Scopes

@@ -2,64 +2,131 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employees;
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos los empleados.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $employee = Employee::with('user')->get(); // Obtiene todos los empleados con su usuario relacionado
+
+        return response()->json([
+            'success' => true,
+            'data' => $employee,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Crear un nuevo empleado.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
+{
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'dni' => 'required|string|max:50|unique:employees,dni',
+        'phone' => 'required|string|max:20',
+        'email' => 'required|email|max:255|unique:employees,email|unique:users,email',
+        'position' => 'required|string|max:255',
+        'hire_date' => 'required|date',
+        'can_manage_inventory' => 'boolean',
+        'active' => 'boolean',
+        'password' => 'required|string|min:8',
+    ]);
+
+    try {
+        // Crear el usuario asociado
+        $user = User::create([
+            'name' => $request->input('first_name') . ' ' . $request->input('last_name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')), // Encripta la contraseña
+        ]);
+
+        // Crear el empleado y asociarlo al usuario
+        $employee = Employee::create([
+            'user_id' => $user->id,
+            'first_name' => $request->input('first_name'),
+            'last_name' => $request->input('last_name'),
+            'dni' => $request->input('dni'),
+            'phone' => $request->input('phone'),
+            'email' => $request->input('email'),
+            'position' => $request->input('position'),
+            'hire_date' => $request->input('hire_date'),
+            'can_manage_inventory' => $request->input('can_manage_inventory', false),
+            'active' => $request->input('active', true),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'employee' => $employee,
+                'user' => $user,
+            ],
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear el empleado: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+    /**
+     * Mostrar un empleado específico.
+     */
+    public function show(Employee $employee): JsonResponse
     {
-        //
+        $employee->load('user'); // Carga la relación con el usuario
+
+        return response()->json([
+            'success' => true,
+            'data' => $employee,
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Actualizar un empleado existente.
      */
-    public function store(Request $request)
+    public function update(Request $request, Employee $employee): JsonResponse
     {
-        //
+        $request->validate([
+            'user_id' => 'nullable|exists:users,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'dni' => 'required|string|max:50|unique:employees,dni,' . $employee->id,
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255|unique:employees,email,' . $employee->id,
+            'position' => 'required|string|max:255',
+            'hire_date' => 'required|date',
+            'can_manage_inventory' => 'boolean',
+            'active' => 'boolean',
+        ]);
+
+        $employee->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $employee,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Eliminar un empleado.
      */
-    public function show(Employees $employees)
+    public function destroy(Employee $employee): JsonResponse
     {
-        //
-    }
+        $employee->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Employees $employees)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Employees $employees)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Employees $employees)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Empleado eliminado correctamente',
+        ]);
     }
 }
