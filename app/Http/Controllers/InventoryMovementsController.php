@@ -2,64 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventory_movements;
+use App\Models\InventoryMovement;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class InventoryMovementsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos los movimientos de inventario.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $inventoryMovements = InventoryMovement::with(['product', 'warehouse', 'order', 'deliveryNote', 'employee'])->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryMovements,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Crear un nuevo movimiento de inventario.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'movement_type' => 'required|in:entry,exit,adjustment,transfer',
+            'quantity' => 'required|numeric|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'total_cost' => 'nullable|numeric|min:0',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'order_id' => 'nullable|exists:orders,id',
+            'delivery_note_id' => 'nullable|exists:delivery_notes,id',
+            'employee_id' => 'required|exists:employees,id',
+        ]);
+
+        $inventoryMovement = InventoryMovement::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryMovement,
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Mostrar un movimiento de inventario específico.
      */
-    public function store(Request $request)
+    public function show(InventoryMovement $inventoryMovement): JsonResponse
     {
-        //
+        $inventoryMovement->load(['product', 'warehouse', 'order', 'deliveryNote', 'employee']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryMovement,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Actualizar un movimiento de inventario.
      */
-    public function show(Inventory_movements $inventory_movements)
+    public function update(Request $request, InventoryMovement $inventoryMovement): JsonResponse
     {
-        //
+        $request->validate([
+            'movement_type' => 'sometimes|required|in:entry,exit,adjustment,transfer',
+            'quantity' => 'sometimes|required|numeric|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'total_cost' => 'nullable|numeric|min:0',
+            'warehouse_id' => 'sometimes|required|exists:warehouses,id',
+            'order_id' => 'nullable|exists:orders,id',
+            'delivery_note_id' => 'nullable|exists:delivery_notes,id',
+            'employee_id' => 'sometimes|required|exists:employees,id',
+        ]);
+
+        $inventoryMovement->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryMovement,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Eliminar un movimiento de inventario.
      */
-    public function edit(Inventory_movements $inventory_movements)
+    public function destroy(InventoryMovement $inventoryMovement): JsonResponse
     {
-        //
-    }
+        $inventoryMovement->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Inventory_movements $inventory_movements)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Inventory_movements $inventory_movements)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Movimiento de inventario eliminado correctamente.',
+        ]);
     }
 }

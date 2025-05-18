@@ -2,64 +2,96 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Products;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ProductsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos los productos.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $products = Product::with(['category', 'unit'])->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $products,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Crear un nuevo producto.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'code' => 'required|string|unique:products,code',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'unit_id' => 'required|exists:units,id',
+            'current_stock' => 'required|numeric|min:0',
+            'minimum_stock' => 'required|numeric|min:0',
+            'active' => 'boolean',
+        ]);
+
+        $product = Product::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Mostrar un producto específico.
      */
-    public function store(Request $request)
+    public function show(Product $product): JsonResponse
     {
-        //
+        $product->load(['category', 'unit']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Actualizar un producto.
      */
-    public function show(Products $products)
+    public function update(Request $request, Product $product): JsonResponse
     {
-        //
+        $request->validate([
+            'code' => 'sometimes|required|string|unique:products,code,' . $product->id,
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'category_id' => 'sometimes|required|exists:categories,id',
+            'unit_id' => 'sometimes|required|exists:units,id',
+            'current_stock' => 'sometimes|required|numeric|min:0',
+            'minimum_stock' => 'sometimes|required|numeric|min:0',
+            'active' => 'boolean',
+        ]);
+
+        $product->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Eliminar un producto.
      */
-    public function edit(Products $products)
+    public function destroy(Product $product): JsonResponse
     {
-        //
-    }
+        $product->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Products $products)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Products $products)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto eliminado correctamente.',
+        ]);
     }
 }

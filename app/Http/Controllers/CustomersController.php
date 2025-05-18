@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customers;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -14,11 +14,11 @@ class CustomersController extends Controller
      */
     public function index(): JsonResponse
     {
-        $customers = Customers::all(); // Obtiene todos los clientes
+        $Customer = Customer::all(); // Obtiene todos los clientes
 
         return response()->json([
             'success' => true,
-            'data' => $customers,
+            'data' => $Customer,
         ]);
     }
 
@@ -39,22 +39,22 @@ class CustomersController extends Controller
             'active' => 'boolean',
         ]);
 
-        $customers = Customers::create($request->all());
+        $Customer = Customer::create($request->all());
 
         return response()->json([
             'success' => true,
-            'data' => $customers,
+            'data' => $Customer,
         ], 201);
     }
 
     /**
      * Mostrar un cliente específico.
      */
-    public function show(Customers $customers): JsonResponse
+    public function show(Customer $Customer): JsonResponse
     {
         return response()->json([
             'success' => true,
-            'data' => $customers,
+            'data' => $Customer,
         ]);
     }
 
@@ -66,7 +66,7 @@ class CustomersController extends Controller
     /**
      * Eliminar un cliente.
      */
-    public function destroy(Customers $customer): JsonResponse
+    public function destroy(Customer $customer): JsonResponse
     {
         $customer->delete();
 

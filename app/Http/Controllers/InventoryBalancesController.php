@@ -2,64 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventory_balances;
+use App\Models\InventoryBalance;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class InventoryBalancesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos los balances de inventario.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $inventoryBalances = InventoryBalance::with(['product', 'warehouse'])->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryBalances,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Crear un nuevo balance de inventario.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|numeric|min:0',
+            'unit_cost' => 'required|numeric|min:0',
+            'date' => 'required|date',
+            'warehouse_id' => 'required|exists:warehouses,id',
+        ]);
+
+        $inventoryBalance = InventoryBalance::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryBalance,
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Mostrar un balance de inventario específico.
      */
-    public function store(Request $request)
+    public function show(InventoryBalance $inventoryBalance): JsonResponse
     {
-        //
+        $inventoryBalance->load(['product', 'warehouse']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryBalance,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Actualizar un balance de inventario.
      */
-    public function show(Inventory_balances $inventory_balances)
+    public function update(Request $request, InventoryBalance $inventoryBalance): JsonResponse
     {
-        //
+        $request->validate([
+            'quantity' => 'sometimes|required|numeric|min:0',
+            'unit_cost' => 'sometimes|required|numeric|min:0',
+            'date' => 'sometimes|required|date',
+            'warehouse_id' => 'sometimes|required|exists:warehouses,id',
+        ]);
+
+        $inventoryBalance->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryBalance,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Eliminar un balance de inventario.
      */
-    public function edit(Inventory_balances $inventory_balances)
+    public function destroy(InventoryBalance $inventoryBalance): JsonResponse
     {
-        //
-    }
+        $inventoryBalance->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Inventory_balances $inventory_balances)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Inventory_balances $inventory_balances)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Balance de inventario eliminado correctamente.',
+        ]);
     }
 }

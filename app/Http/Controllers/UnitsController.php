@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Units;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -13,7 +13,7 @@ class UnitsController extends Controller
      */
     public function index(): JsonResponse
     {
-        $Unitss = Units::all(); // Obtiene todas las unidades
+        $Unitss = Unit::all(); // Obtiene todas las unidades
 
         return response()->json([
             'success' => true,
@@ -31,7 +31,7 @@ class UnitsController extends Controller
             'abbreviation' => 'required|string|max:10', // Validación del campo 'abbreviation'
         ]);
 
-        $Units = Units::create($request->all()); // Crea la unidad
+        $Units = Unit::create($request->all()); // Crea la unidad
 
         return response()->json([
             'success' => true,
@@ -42,7 +42,7 @@ class UnitsController extends Controller
     /**
      * Mostrar una unidad específica.
      */
-    public function show(Units $Units): JsonResponse
+    public function show(Unit $Units): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -53,7 +53,7 @@ class UnitsController extends Controller
     /**
      * Actualizar una unidad existente.
      */
-    public function update(Request $request, Units $Units): JsonResponse
+    public function update(Request $request, Unit $Units): JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',         // Validación del campo 'name'
@@ -71,7 +71,7 @@ class UnitsController extends Controller
     /**
      * Eliminar una unidad.
      */
-    public function destroy(Units $Units): JsonResponse
+    public function destroy(Unit $Units): JsonResponse
     {
         $Units->delete(); // Elimina la unidad
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -13,7 +13,7 @@ class SuppliersController extends Controller
      */
     public function index(): JsonResponse
     {
-        $Suppliers = Suppliers::all(); // Obtiene todos los proveedores
+        $Suppliers = Supplier::all(); // Obtiene todos los proveedores
 
         return response()->json([
             'success' => true,
@@ -37,7 +37,7 @@ class SuppliersController extends Controller
             'active' => 'boolean',
         ]);
 
-        $Suppliers = Suppliers::create($request->all());
+        $Suppliers = Supplier::create($request->all());
 
         return response()->json([
             'success' => true,
@@ -48,7 +48,7 @@ class SuppliersController extends Controller
     /**
      * Mostrar un proveedor específico.
      */
-    public function show(Suppliers $Suppliers): JsonResponse
+    public function show(Supplier $Suppliers): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -59,7 +59,7 @@ class SuppliersController extends Controller
     /**
      * Actualizar un proveedor existente.
      */
-    public function update(Request $request, Suppliers $Suppliers): JsonResponse
+    public function update(Request $request, Supplier $Suppliers): JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -83,7 +83,7 @@ class SuppliersController extends Controller
     /**
      * Eliminar un proveedor.
      */
-    public function destroy(Suppliers $Suppliers): JsonResponse
+    public function destroy(Supplier $Suppliers): JsonResponse
     {
         $Suppliers->delete();
 

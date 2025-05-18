@@ -2,64 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order_items;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class OrderItemsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos los items de una orden.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $orderId = $request->query('order_id');
+        $query = OrderItem::with(['order', 'product']);
+
+        if ($orderId) {
+            $query->where('order_id', $orderId);
+        }
+
+        $orderItems = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orderItems,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Crear un nuevo item de orden.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|numeric|min:0',
+            'unit_price' => 'required|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
+            'specifications' => 'nullable|string',
+        ]);
+
+        $orderItem = OrderItem::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $orderItem,
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Mostrar un item de orden específico.
      */
-    public function store(Request $request)
+    public function show(OrderItem $orderItem): JsonResponse
     {
-        //
+        $orderItem->load(['order', 'product']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $orderItem,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Actualizar un item de orden.
      */
-    public function show(Order_items $order_items)
+    public function update(Request $request, OrderItem $orderItem): JsonResponse
     {
-        //
+        $request->validate([
+            'quantity' => 'sometimes|required|numeric|min:0',
+            'unit_price' => 'sometimes|required|numeric|min:0',
+            'total_price' => 'sometimes|required|numeric|min:0',
+            'specifications' => 'nullable|string',
+        ]);
+
+        $orderItem->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $orderItem,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Eliminar un item de orden.
      */
-    public function edit(Order_items $order_items)
+    public function destroy(OrderItem $orderItem): JsonResponse
     {
-        //
-    }
+        $orderItem->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order_items $order_items)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order_items $order_items)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Item de orden eliminado correctamente.',
+        ]);
     }
 }

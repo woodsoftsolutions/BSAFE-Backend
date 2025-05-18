@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categories;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +13,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        $categories = Categories::all();
+        $categories = Category::all();
         // Aquí puedes implementar la lógica para obtener los productos
         return response()->json([
             'success' => true,
@@ -39,7 +39,7 @@ class CategoriesController extends Controller
             ], 422);
         }
 
-        $Categories = Categories::create($request->all());
+        $Categories = Category::create($request->all());
 
         return response()->json([
             'success' => true,
@@ -51,7 +51,7 @@ class CategoriesController extends Controller
      */
     public function show($id)
     {
-        $Categories = Categories::find($id);
+        $Categories = Category::find($id);
 
         if (!$Categories) {
             return response()->json([
@@ -82,7 +82,7 @@ class CategoriesController extends Controller
             ], 422);
         }
 
-        $Categories = Categories::find($id);
+        $Categories = Category::find($id);
 
         if (!$Categories) {
             return response()->json([
@@ -104,7 +104,7 @@ class CategoriesController extends Controller
      */
     public function destroy($id)
     {
-        $Categories = Categories::find($id);
+        $Categories = Category::find($id);
 
         if (!$Categories) {
             return response()->json([

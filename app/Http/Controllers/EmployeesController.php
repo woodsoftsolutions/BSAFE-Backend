@@ -42,14 +42,12 @@ class EmployeesController extends Controller
     ]);
 
     try {
-        // Crear el usuario asociado
         $user = User::create([
             'name' => $request->input('first_name') . ' ' . $request->input('last_name'),
             'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')), // Encripta la contraseña
+            'password' => Hash::make($request->input('password')),
         ]);
 
-        // Crear el empleado y asociarlo al usuario
         $employee = Employee::create([
             'user_id' => $user->id,
             'first_name' => $request->input('first_name'),
@@ -97,19 +95,29 @@ class EmployeesController extends Controller
     public function update(Request $request, Employee $employee): JsonResponse
     {
         $request->validate([
-            'user_id' => 'nullable|exists:users,id',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'dni' => 'required|string|max:50|unique:employees,dni,' . $employee->id,
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255|unique:employees,email,' . $employee->id,
-            'position' => 'required|string|max:255',
-            'hire_date' => 'required|date',
+            'user_id' => 'sometimes|nullable|exists:users,id',
+            'first_name' => 'sometimes|required|string|max:255',
+            'last_name' => 'sometimes|required|string|max:255',
+            'dni' => 'sometimes|required|string|max:50|unique:employees,dni,' . $employee->id,
+            'phone' => 'sometimes|required|string|max:20',
+            'email' => 'sometimes|required|email|max:255|unique:employees,email,' . $employee->id,
+            'position' => 'sometimes|required|string|max:255',
+            'hire_date' => 'sometimes|required|date',
             'can_manage_inventory' => 'boolean',
             'active' => 'boolean',
+            'password' => 'nullable|string|min:8',
         ]);
 
         $employee->update($request->all());
+
+        $user = $employee->user;
+        if ($user) {
+            $user->update([
+                'name' => $request->input('first_name', $employee->first_name) . ' ' . $request->input('last_name', $employee->last_name),
+                'email' => $request->input('email', $user->email),
+                'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\{
-    productosController,
     ProductsController,
     CategoriesController,
     SuppliersController,
@@ -19,15 +18,7 @@ use App\Http\Controllers\{
 };
 
 
-Route::get('/productos', [productosController::class, 'index']);
-Route::get('/productos/filtrar', function () {
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'productos' => [] 
-        ]
-    ]);
-});
+
 // Productos
 Route::apiResource('products', ProductsController::class);
     
@@ -47,7 +38,6 @@ Route::apiResource('customers', CustomersController::class);
 Route::apiResource('employees', EmployeesController::class);
 
 // Usuarios
-Route::apiResource('users', UserController::class);
 
 Route::post('login', [UserController::class, 'login']);
 
