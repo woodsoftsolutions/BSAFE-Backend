@@ -14,7 +14,8 @@ use App\Http\Controllers\{
     InventoryMovementsController,
     DeliveryNotesController,
     UnitsController,
-    UserController
+    UserController,
+    InventoryBalancesController
 };
 
 
@@ -50,8 +51,8 @@ Route::post('orders/{order}/approve', [OrdersController::class, 'approve']);
 Route::post('orders/{order}/process', [OrdersController::class, 'process']);
 
 // Movimientos de Inventario
-Route::apiResource('inventory-movements', InventoryMovementsController::class)->only(['index', 'show']);
-
+Route::apiResource('inventory-movements', InventoryMovementsController::class);
+Route::apiResource('inventory-balances', InventoryBalancesController::class);
 // Notas de Entrega
 Route::apiResource('delivery-notes', DeliveryNotesController::class)->only(['index', 'show', 'store']);
 

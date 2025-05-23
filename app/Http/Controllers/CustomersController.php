@@ -61,6 +61,55 @@ class CustomersController extends Controller
     /**
      * Actualizar un cliente existente.
      */
+    public function update(Request $request, Customer $customer): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'phone' => 'sometimes|required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'tax_id' => 'nullable|string|max:50',
+            'customer_type' => 'sometimes|required|in:regular,wholesaler,government',
+            'notes' => 'nullable|string',
+            'active' => 'boolean',
+        ]);
+
+        $customer->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'data' => $customer,
+        ]);
+    }
+
+    /**
+     * Restaurar un cliente eliminado (soft delete).
+     */
+    public function restore($id): JsonResponse
+    {
+        $customer = Customer::withTrashed()->findOrFail($id);
+        $customer->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cliente restaurado correctamente',
+            'data' => $customer,
+        ]);
+    }
+
+    /**
+     * Listar clientes eliminados (soft deleted).
+     */
+    public function trashed(): JsonResponse
+    {
+        $customers = Customer::onlyTrashed()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $customers,
+        ]);
+    }
 
 
     /**

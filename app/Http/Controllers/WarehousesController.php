@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Warehouses;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -13,11 +13,11 @@ class WarehousesController extends Controller
      */
     public function index(): JsonResponse
     {
-        $Warehouses = Warehouses::all(); // Obtiene todos los almacenes
+        $warehouses = Warehouse::all(); // Obtiene todos los almacenes
 
         return response()->json([
             'success' => true,
-            'data' => $Warehouses,
+            'data' => $warehouses,
         ]);
     }
 
@@ -32,7 +32,7 @@ class WarehousesController extends Controller
             'is_active' => 'boolean',                   // Validación del campo 'is_active'
         ]);
 
-        $Warehouses = Warehouses::create($request->all()); // Crea el almacén
+        $Warehouses = Warehouse::create($request->all()); // Crea el almacén
 
         return response()->json([
             'success' => true,
@@ -43,18 +43,18 @@ class WarehousesController extends Controller
     /**
      * Mostrar un almacén específico.
      */
-    public function show(Warehouses $Warehouses): JsonResponse
+    public function show(Warehouse $warehouse): JsonResponse
     {
         return response()->json([
             'success' => true,
-            'data' => $Warehouses,
+            'data' => $warehouse,
         ]);
     }
 
     /**
      * Actualizar un almacén existente.
      */
-    public function update(Request $request, Warehouses $Warehouses): JsonResponse
+    public function update(Request $request, Warehouse $warehouse): JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',         // Validación del campo 'name'
@@ -62,20 +62,20 @@ class WarehousesController extends Controller
             'is_active' => 'boolean',                   // Validación del campo 'is_active'
         ]);
 
-        $Warehouses->update($request->all()); // Actualiza el almacén
+        $warehouse->update($request->all()); // Actualiza el almacén
 
         return response()->json([
             'success' => true,
-            'data' => $Warehouses,
+            'data' => $warehouse,
         ]);
     }
 
     /**
      * Eliminar un almacén.
      */
-    public function destroy(Warehouses $Warehouses): JsonResponse
+    public function destroy(Warehouse $warehouse): JsonResponse
     {
-        $Warehouses->delete(); // Elimina el almacén
+        $warehouse->delete(); // Elimina el almacén
 
         return response()->json([
             'success' => true,
