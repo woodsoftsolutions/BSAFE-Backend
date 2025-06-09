@@ -46,12 +46,16 @@ Route::post('login', [UserController::class, 'login']);
 Route::apiResource('warehouses', WarehousesController::class);
 
 // Pedidos
+Route::get('orders/summary', [OrdersController::class, 'summary']);
 Route::apiResource('orders', OrdersController::class);
 Route::post('orders/{order}/approve', [OrdersController::class, 'approve']);
+Route::post('orders/{order}/reject', [OrdersController::class, 'reject']);
 Route::post('orders/{order}/process', [OrdersController::class, 'process']);
 
 // Movimientos de Inventario
 Route::apiResource('inventory-movements', InventoryMovementsController::class);
+Route::get('inventory-movements/product/{product_id}', [InventoryMovementsController::class, 'show_id']);
+
 Route::apiResource('inventory-balances', InventoryBalancesController::class);
 // Notas de Entrega
 Route::apiResource('delivery-notes', DeliveryNotesController::class)->only(['index', 'show', 'store']);

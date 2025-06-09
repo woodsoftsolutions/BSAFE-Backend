@@ -46,4 +46,9 @@ class Order extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }
