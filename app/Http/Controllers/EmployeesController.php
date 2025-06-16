@@ -24,6 +24,19 @@ class EmployeesController extends Controller
     }
 
     /**
+     * Listar empleados paginados.
+     */
+    public function paginated(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $employees = \App\Models\Employee::paginate($perPage);
+        return response()->json([
+            'success' => true,
+            'data' => $employees
+        ]);
+    }
+
+    /**
      * Crear un nuevo empleado.
      */
     public function store(Request $request): JsonResponse

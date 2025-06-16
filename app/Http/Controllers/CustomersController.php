@@ -124,4 +124,18 @@ class CustomersController extends Controller
             'message' => 'Cliente eliminado correctamente',
         ]);
     }
+
+    /**
+     * Listar clientes paginados.
+     */
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $customers = Customer::paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $customers,
+        ]);
+    }
 }

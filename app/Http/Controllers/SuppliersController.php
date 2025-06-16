@@ -92,4 +92,18 @@ class SuppliersController extends Controller
             'message' => 'Proveedor eliminado correctamente',
         ]);
     }
+
+    /**
+     * Listar proveedores paginados.
+     */
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $suppliers = Supplier::paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $suppliers,
+        ]);
+    }
 }

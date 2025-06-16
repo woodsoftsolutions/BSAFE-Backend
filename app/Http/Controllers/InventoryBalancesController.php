@@ -87,4 +87,18 @@ class InventoryBalancesController extends Controller
             'message' => 'Balance de inventario eliminado correctamente.',
         ]);
     }
+
+    /**
+     * Listar balances de inventario paginados.
+     */
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $balances = InventoryBalance::with(['product', 'warehouse'])->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $balances,
+        ]);
+    }
 }

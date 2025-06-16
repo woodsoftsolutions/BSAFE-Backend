@@ -22,6 +22,20 @@ class ProductsController extends Controller
     }
 
     /**
+     * Listar productos paginados.
+     */
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $products = Product::with(['category', 'unit'])->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products,
+        ]);
+    }
+
+    /**
      * Crear un nuevo producto.
      */
     public function store(Request $request): JsonResponse

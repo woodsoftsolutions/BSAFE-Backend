@@ -160,4 +160,17 @@ public function destroy(InventoryMovement $inventoryMovement): JsonResponse
         'balance' => $balance,
     ]);
 }
+
+/**
+     * Listar movimientos de inventario paginados.
+     */
+    public function paginated(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $movements = \App\Models\InventoryMovement::with(['product', 'warehouse', 'order', 'deliveryNote', 'employee'])->paginate($perPage);
+        return response()->json([
+            'success' => true,
+            'data' => $movements
+        ]);
+    }
 }

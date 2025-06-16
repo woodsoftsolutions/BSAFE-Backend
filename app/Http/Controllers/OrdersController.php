@@ -23,9 +23,23 @@ class OrdersController extends Controller
     }
 
     /**
+     * Listar órdenes paginadas.
+     */
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = $request->query('per_page', 10);
+        $orders = Order::with(['supplier', 'customer', 'employee'])->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders,
+        ]);
+    }
+
+    /**
      * Crear una nueva orden.
      */
-public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'order_number' => 'required|string|unique:orders,order_number',
@@ -77,7 +91,7 @@ public function store(Request $request): JsonResponse
     /**
      * Actualizar una orden.
      */
-public function update(Request $request, Order $order): JsonResponse
+    public function update(Request $request, Order $order): JsonResponse
     {
         $request->validate([
             'order_number' => 'sometimes|required|string|unique:orders,order_number,' . $order->id,
