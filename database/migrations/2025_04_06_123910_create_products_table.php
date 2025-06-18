@@ -21,6 +21,8 @@ return new class extends Migration
             $table->decimal('current_stock', 10, 2)->default(0);
             $table->decimal('minimum_stock', 10, 2)->default(0);
             $table->boolean('active')->default(true);
+            $table->string('brand')->nullable();
+            $table->string('model')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

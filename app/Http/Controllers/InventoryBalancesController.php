@@ -13,7 +13,7 @@ class InventoryBalancesController extends Controller
      */
     public function index(): JsonResponse
     {
-        $inventoryBalances = InventoryBalance::with(['product', 'warehouse'])->get();
+        $inventoryBalances = InventoryBalance::with(['product.category', 'warehouse'])->get();
 
         return response()->json([
             'success' => true,
@@ -28,6 +28,7 @@ class InventoryBalancesController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'category_id' => 'required|exists:categories,id',
             'quantity' => 'required|numeric|min:0',
             'unit_cost' => 'required|numeric|min:0',
             'date' => 'required|date',
@@ -35,6 +36,8 @@ class InventoryBalancesController extends Controller
         ]);
 
         $inventoryBalance = InventoryBalance::create($request->all());
+
+        $inventoryBalance->load(['product.category', 'warehouse']);
 
         return response()->json([
             'success' => true,
@@ -47,7 +50,7 @@ class InventoryBalancesController extends Controller
      */
     public function show(InventoryBalance $inventoryBalance): JsonResponse
     {
-        $inventoryBalance->load(['product', 'warehouse']);
+        $inventoryBalance->load(['product.category', 'warehouse']);
 
         return response()->json([
             'success' => true,

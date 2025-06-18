@@ -11,6 +11,7 @@ class InventoryBalance extends Model
 
     protected $fillable = [
         'product_id',
+        'category_id',
         'quantity',
         'unit_cost',
         'date',
@@ -31,5 +32,13 @@ class InventoryBalance extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    /**
+     * Relación con el modelo Category.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

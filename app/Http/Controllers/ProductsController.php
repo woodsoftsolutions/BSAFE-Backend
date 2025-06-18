@@ -49,6 +49,8 @@ class ProductsController extends Controller
             'current_stock' => 'required|numeric|min:0',
             'minimum_stock' => 'required|numeric|min:0',
             'active' => 'boolean',
+            'brand' => 'nullable|string|max:255',
+            'model' => 'nullable|string|max:255',
         ]);
 
         $product = Product::create($request->all());
@@ -86,6 +88,8 @@ class ProductsController extends Controller
             'current_stock' => 'sometimes|required|numeric|min:0',
             'minimum_stock' => 'sometimes|required|numeric|min:0',
             'active' => 'boolean',
+            'brand' => 'nullable|string|max:255',
+            'model' => 'nullable|string|max:255',
         ]);
 
         $product->update($request->all());

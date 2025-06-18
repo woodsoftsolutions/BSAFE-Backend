@@ -30,18 +30,31 @@ class InventoryMovementsController extends Controller
         'product_id' => 'required|exists:products,id',
         'movement_type' => 'required|in:entry,exit,adjustment,transfer',
         'quantity' => 'required|numeric|min:0',
-        'unit_cost' => 'required|numeric|min:0',
+        'unit_cost' => 'nullable|numeric|min:0',
         'total_cost' => 'nullable|numeric|min:0',
         'warehouse_id' => 'required|exists:warehouses,id',
         'order_id' => 'nullable|exists:orders,id',
         'delivery_note_id' => 'nullable|exists:delivery_notes,id',
         'employee_id' => 'required|exists:employees,id',
+        'supplier_id' => [
+            'nullable',
+            'required_if:movement_type,entry',
+            'exists:suppliers,id',
+        ],
     ]);
 
     // 1. Registrar el movimiento
-    $movement = InventoryMovement::create($request->all());
+    $supplierId = null;
+    if ($request->movement_type === 'entry') {
+        $supplierId = $request->input('supplier_id');
+    }
+    $inventoryMovement = InventoryMovement::create(array_merge(
+        $request->all(),
+        ['supplier_id' => $supplierId]
+    ));
 
     // 2. Buscar o crear el balance actual
+    $product = \App\Models\Product::findOrFail($request->product_id);
     $balance = \App\Models\InventoryBalance::firstOrCreate(
         [
             'product_id' => $request->product_id,
@@ -49,8 +62,9 @@ class InventoryMovementsController extends Controller
         ],
         [
             'quantity' => 0,
-            'unit_cost' => $request->unit_cost,
+            'unit_cost' => $request->unit_cost ?? 0,
             'date' => now(),
+            'category_id' => $product->category_id,
         ]
     );
 
@@ -79,7 +93,7 @@ class InventoryMovementsController extends Controller
     return response()->json([
         'success' => true,
         'data' => [
-            'movement' => $movement,
+            'movement' => $inventoryMovement,
             'balance' => $balance,
         ],
     ], 201);

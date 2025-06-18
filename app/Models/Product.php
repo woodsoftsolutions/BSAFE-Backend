@@ -19,6 +19,8 @@ class Product extends Model
         'current_stock',
         'minimum_stock',
         'active',
+        'brand',
+        'model',
     ];
 
     /**

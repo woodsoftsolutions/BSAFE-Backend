@@ -23,13 +23,17 @@ class OrdersController extends Controller
     }
 
     /**
-     * Listar órdenes paginadas.
+     * Listar órdenes paginadas y filtradas por status.
      */
     public function paginated(Request $request): JsonResponse
     {
         $perPage = $request->query('per_page', 10);
-        $orders = Order::with(['supplier', 'customer', 'employee'])->paginate($perPage);
-
+        $status = $request->query('status');
+        $query = Order::with(['supplier', 'customer', 'employee']);
+        if ($status) {
+            $query->where('status', $status);
+        }
+        $orders = $query->paginate($perPage);
         return response()->json([
             'success' => true,
             'data' => $orders,
@@ -44,8 +48,8 @@ class OrdersController extends Controller
         $request->validate([
             'order_number' => 'required|string|unique:orders,order_number',
             'order_type' => 'required|in:quotation,purchase',
-            'status' => 'required|in:draft,pending_approval,approved,cancelled',
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'status' => 'required|in:pending_approval,approved,cancelled',
+            'supplier_id' => 'nullable',
             'customer_id' => 'nullable|exists:customers,id',
             'employee_id' => 'required|exists:employees,id',
             'order_date' => 'required|date',
@@ -164,9 +168,34 @@ class OrdersController extends Controller
     {
         $order->status = 'approved';
         $order->save();
+
+        foreach ($order->orderItems as $item) {
+            // Crear movimiento de salida
+            \App\Models\InventoryMovement::create([
+                'product_id' => $item->product_id,
+                'movement_type' => 'exit',
+                'quantity' => $item->quantity,
+                'unit_cost' => $item->unit_price,
+                'total_cost' => $item->total_price,
+                'warehouse_id' => 1, // Ajusta según tu lógica de almacén
+                'order_id' => $order->id,
+                'delivery_note_id' => null,
+                'employee_id' => $order->employee_id,
+            ]);
+
+            // Actualizar InventoryBalance
+            $balance = \App\Models\InventoryBalance::where('product_id', $item->product_id)
+                ->where('warehouse_id', 1) // Ajusta según tu lógica de almacén
+                ->first();
+            if ($balance) {
+                $balance->quantity -= $item->quantity;
+                $balance->save();
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Orden aprobada correctamente.',
+            'message' => 'Orden aprobada y movimientos de inventario generados.',
             'data' => $order
         ]);
     }
